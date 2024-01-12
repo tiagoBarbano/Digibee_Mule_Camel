@@ -2,6 +2,12 @@ EXERCICIO CAMEL
 
 *** 
 
+Start aplicacao:
+
+        mvn clean package -DskipTests
+        mvn spring-boot:run
+
+***
 
 * http://localhost:10001/actuator/hawtio/camel/routes
 
