@@ -1,10 +1,13 @@
-package com.example;
+package com.example.service.impl;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
+
+import com.example.models.User;
+import com.example.service.UserService;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {

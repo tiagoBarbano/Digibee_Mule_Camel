@@ -1,6 +1,8 @@
-package com.example;
+package com.example.service;
 
 import java.util.Collection;
+
+import com.example.models.User;
 
 /**
  * Service interface for managing users.

@@ -1,10 +1,10 @@
-package com.example;
+package com.example.routers;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
-@Component
-public class SampleCamelRouter extends RouteBuilder {
+// @Component
+public class CamelRouterCron extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
