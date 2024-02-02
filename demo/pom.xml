@@ -16,6 +16,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring.boot-version>3.2.0</spring.boot-version>
     <surefire.plugin.version>3.0.0-M4</surefire.plugin.version>
+		<jaeger.version>1.6.0</jaeger.version>
+		<io.opentracing.contrib.version>3.3.1</io.opentracing.contrib.version>
+		<opentelemetry-agent.version>1.25.1</opentelemetry-agent.version>    
   </properties>
 
   <dependencyManagement>
@@ -110,7 +113,11 @@
     <dependency>
       <groupId>org.apache.camel.springboot</groupId>
       <artifactId>camel-management-starter</artifactId>
-    </dependency>    
+    </dependency>
+  <dependency>
+      <groupId>org.apache.camel.springboot</groupId>
+      <artifactId>camel-http-starter</artifactId>
+  </dependency>
     <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
@@ -118,7 +125,8 @@
     <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-jsonpath</artifactId>
-    </dependency>    
+    </dependency>
+
 
     <!-- (Optional) Required for Hawtio Camel route diagram tab -->
     <dependency>
@@ -165,6 +173,23 @@
       <groupId>org.apache.camel.springboot</groupId>
       <artifactId>camel-debug-starter</artifactId>
     </dependency>    
+    <dependency>
+      <groupId>org.apache.camel.springboot</groupId>
+      <artifactId>camel-opentelemetry-starter</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.camel.springboot</groupId>
+        <artifactId>camel-amqp-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.camel.springboot</groupId>
+        <artifactId>camel-spring-rabbitmq-starter</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>org.apache.camel.springboot</groupId>
+      <artifactId>camel-spring-redis-starter</artifactId>
+    </dependency>    
 
   </dependencies>
 
@@ -192,6 +217,31 @@
           </execution>
         </executions>
       </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-javaagent</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>io.opentelemetry.javaagent</groupId>
+									<artifactId>opentelemetry-javaagent</artifactId>
+									<version>${opentelemetry-agent.version}</version>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/javaagents</outputDirectory>
+									<destFileName>javaagent.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

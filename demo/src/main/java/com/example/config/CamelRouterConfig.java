@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class CamelRouterConfig extends RouteBuilder {
 
@@ -18,9 +17,7 @@ public class CamelRouterConfig extends RouteBuilder {
     private String contextPath;
 
     @Override
-    public void configure() throws Exception {
-        // @formatter:off
-        
+    public void configure() throws Exception {      
         // this can also be configured in application.properties
         restConfiguration()
             .component("servlet")

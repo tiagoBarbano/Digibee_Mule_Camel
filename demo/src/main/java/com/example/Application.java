@@ -1,5 +1,6 @@
 package com.example;
 
+import org.apache.camel.opentelemetry.starter.CamelOpenTelemetry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import io.hawt.springboot.HawtioPlugin;
 import io.hawt.config.ConfigFacade;
 
-
+@CamelOpenTelemetry
 @SpringBootApplication
 public class Application {
 

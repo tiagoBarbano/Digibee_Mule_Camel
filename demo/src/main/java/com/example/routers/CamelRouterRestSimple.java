@@ -2,6 +2,10 @@ package com.example.routers;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.micrometer.eventnotifier.MicrometerExchangeEventNotifier;
+import org.apache.camel.component.micrometer.eventnotifier.MicrometerRouteEventNotifier;
+import org.apache.camel.component.micrometer.messagehistory.MicrometerMessageHistoryFactory;
+import org.apache.camel.component.micrometer.routepolicy.MicrometerRoutePolicyFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +27,10 @@ public class CamelRouterRestSimple extends RouteBuilder {
 
 	@Override
 	public void configure() throws Exception {
+		getContext().addRoutePolicyFactory(new MicrometerRoutePolicyFactory());
+		getContext().setMessageHistoryFactory(new MicrometerMessageHistoryFactory());
+		getCamelContext().getManagementStrategy().addEventNotifier(new MicrometerExchangeEventNotifier());
+		getCamelContext().getManagementStrategy().addEventNotifier(new MicrometerRouteEventNotifier());
 
 		rest("/users").description("User REST service")
 				.consumes("application/json")
@@ -53,17 +61,19 @@ public class CamelRouterRestSimple extends RouteBuilder {
 				.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(204))
 				.setBody(constant(""));
 
-		rest("/chamadaProduto")
+		rest("/chamadaProduto").id("chamadaProduto")
+				.description("chamadaProduto")
 				.consumes("application/json")
 				.produces("application/json")
-
 				.post().description("teste")
-				.param().name("body").type(body).endParam()
-				.responseMessage().code(500).message("problema no processamento").endResponseMessage()
-				.to("direct:processRoute");
+					.param().name("body").type(body).endParam()
+					.to("direct:processRoute")
+				.get("/{id}").description("Teste Get")
+					.param().name("id").type(path).description("The ID").dataType("integer").endParam()
+					.to("direct:startOrderService");
 
 		// Rota de processamento
-		from("direct:processRoute")
+		from("direct:processRoute").routeId("processRoute")
 				.log("Recebendo requisição: ${body}")
 				.process(exchange -> {
 					// Obtenha o valor do campo 'chamada' e armazene em uma propriedade de troca
@@ -80,26 +90,41 @@ public class CamelRouterRestSimple extends RouteBuilder {
 				.end();
 
 		// Rota para a API Primeiro
-		from("direct:apiPrimeiro")
+		from("direct:apiPrimeiro").routeId("apiPrimeiro")
 				.log("Roteando para API Primeiro: ${body}")
 				.to("direct:step01");
 		// Adicione aqui a lógica para chamar a API correspondente
 
 		// Rota para a API Segundo
-		from("direct:apiSegundo")
+		from("direct:apiSegundo").routeId("apiSegundo")
 				.log("Roteando para API Segundo: ${body}");
 		// Adicione aqui a lógica para chamar a outra API
 
 		// Rota para a API Primeiro
-		from("direct:step01")
+		from("direct:step01").routeId("step01")
 				.log("Roteando para step01: ${body}")
 				.to("direct:step02");
 
 		// Rota para a API Segundo
-		from("direct:step02")
-				.log("Roteando para step02 Segundo: ${body}");
+		from("direct:step02").routeId("step02")
+				.log("Roteando para step02 Segundo: ${body}")
+				.to("direct:getHelloWorldFastApi");
+
 		// Adicione aqui a lógica para chamar a outra API
 
+		from("direct:getHelloWorldFastApi").routeId("getHelloWorldFastApi")
+				.removeHeaders("*")
+				.setHeader(Exchange.HTTP_METHOD, constant("GET"))
+				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+				// .marshal().json()
+				.to("http://localhost:8000/")
+				.log("Pedido processado [${header.CamelHttpResponseCode}-${header.CamelHttpResponseText}]")
+				.end()
+				.to("seda:sendQueue");
+
+		from("seda:sendQueue").routeId("sendQueue")
+				.to("spring-rabbitmq:mykey?routingKey=mykey2");
+				
 	}
 
 }
